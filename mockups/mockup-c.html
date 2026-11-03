@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>案C「和風・静かな修行」</title><link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet"><style>:root{--page:#14110f;--bg:#1d1916;--card:#2a2420;--line:#463c34;--text:#efe6d6;--accent:#d9534a;--avbg:#2a2420;--glow:none;--r:50%;--rs:6px;--rc:50%;--head:'Shippori Mincho',serif;--body:'Noto Sans JP',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--text);font-family:var(--body);padding:32px 20px 60px}
+.title{text-align:center;font-family:var(--head);font-size:28px;letter-spacing:.04em}
+.sub{text-align:center;opacity:.7;margin:6px 0 28px;font-size:14px}
+.row{display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
+.phone{width:320px;height:640px;border-radius:44px;background:#000;padding:10px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.screen{position:relative;height:100%;border-radius:36px;background:var(--bg);overflow:hidden;padding:44px 16px 70px;color:var(--text);border:1px solid var(--line)}
+.cap{position:absolute;top:12px;left:0;right:0;text-align:center;font-size:11px;opacity:.5}
+h2{font-family:var(--head);font-size:18px;margin:6px 0 12px}
+.hero{display:flex;gap:14px;align-items:center}
+.avatar{width:96px;height:96px;border-radius:var(--r);background:var(--avbg);display:grid;place-items:center;border:2px solid var(--accent);box-shadow:var(--glow)}
+.avatar svg{width:70px;fill:var(--accent);opacity:.9}
+.name{font-size:20px;font-weight:700}
+.role{font-size:12px;color:var(--accent);margin:2px 0 6px}
+.lv small{font-size:14px;color:var(--accent);font-weight:700;margin-right:4px}
+.lv b{font-family:var(--head);font-size:54px;line-height:1;color:var(--text)}
+.xpbar{height:12px;border-radius:var(--rs);background:var(--card);margin-top:14px;overflow:hidden;border:1px solid var(--line)}
+.xpbar i{display:block;height:100%;background:var(--accent)}
+.xptext{font-size:11px;opacity:.7;margin:6px 0 14px}
+.card{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--rs);padding:12px 14px;margin-bottom:10px;font-size:13px}
+.card b{color:var(--accent)}
+.warn{border-color:#e5534b;color:#ff8a82}
+.q{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px}
+.chk{width:26px;height:26px;border-radius:var(--rc);border:2px solid var(--accent);display:grid;place-items:center;font-size:15px;color:var(--bg);flex:none}
+.q.done .chk{background:var(--accent)}
+.q.done .qt b{text-decoration:line-through;opacity:.5}
+.qt{flex:1}.qt b{display:block;font-size:14px}.qt small{font-size:10.5px;opacity:.6}
+.xp{font-family:var(--head);color:var(--accent);font-size:15px}
+.q.rec{border-style:dashed}
+.q.off{opacity:.45}
+.toggle{width:34px;height:20px;border-radius:10px;background:#555;position:relative}
+.toggle:after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#ddd}
+.hint{font-size:11.5px;opacity:.7;margin-bottom:16px;line-height:1.6}
+.bignum{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:10px 0 8px}
+.bignum b{font-family:var(--head);font-size:68px;color:var(--text)}
+.bignum small{font-size:14px;opacity:.7}
+.goal{text-align:center;font-size:12px;margin-bottom:16px;opacity:.9}.goal span{color:var(--accent);font-weight:700}
+.btn{width:100%;padding:14px;border:0;border-radius:var(--rs);background:var(--accent);color:var(--bg);font-weight:700;font-size:15px;margin-top:6px;font-family:var(--body)}
+.tab{position:absolute;left:0;right:0;bottom:0;height:60px;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center}
+.tab u{text-decoration:none;font-size:11px;opacity:.55}.tab u.on{opacity:1;color:var(--accent)}
+</style></head><body>
+<h1 class="title">案C「和風・静かな修行」</h1>
+<p class="sub">墨色と生成り、差し色は朱。派手さを抑えて毎日開いても疲れない落ち着いた雰囲気。</p>
+<div class="row">
+
+<!-- 画面1 ホーム -->
+<div class="phone"><div class="screen">
+  <div class="cap">① ホーム</div>
+  <div class="hero">
+    <div class="avatar"><svg viewBox="0 0 100 100"><circle cx="50" cy="38" r="18"/><path d="M14 96c2-26 18-38 36-38s34 12 36 38z"/></svg></div>
+    <div class="hero-info">
+      <div class="name">あなた</div>
+      <div class="role">役職：戦士（仮）</div>
+      <div class="lv"><small>LV</small><b>12</b></div>
+    </div>
+  </div>
+  <div class="xpbar"><i style="width:34%"></i></div>
+  <div class="xptext">340 / 1,000 XP　次のレベルまで 660</div>
+  <div class="card shield"><span>お休みシールド</span><b>今週 1 / 1</b></div>
+  <div class="card warn"><span>ペナルティ中：本日の量 ×1.25</span></div>
+  <div class="card"><span>今日のクエスト</span><b>2 / 5 完了</b></div>
+  <div class="card"><span>使用時間（昨日）</span><b>未入力</b></div>
+  <div class="tab"><u>ホーム</u><u>クエスト</u><u>記録</u><u>設定</u></div>
+</div></div>
+
+<!-- 画面2 クエスト -->
+<div class="phone"><div class="screen">
+  <div class="cap">② クエスト一覧</div>
+  <h2>今日のクエスト</h2>
+  <div class="q done"><div class="chk">✓</div><div class="qt"><b>腕立て 5回</b><small>毎日</small></div><div class="xp">+5</div></div>
+  <div class="q done"><div class="chk">✓</div><div class="qt"><b>就寝 23:30まで</b><small>毎日</small></div><div class="xp">+20</div></div>
+  <div class="q"><div class="chk"></div><div class="qt"><b>懸垂 10回</b><small>月・水・金</small></div><div class="xp">+15</div></div>
+  <div class="q"><div class="chk"></div><div class="qt"><b>勉強 2時間以上</b><small>毎日</small></div><div class="xp">+45</div></div>
+  <div class="q"><div class="chk"></div><div class="qt"><b>自慰控え</b><small>毎日</small></div><div class="xp">+30</div></div>
+  <div class="q rec"><div class="chk"></div><div class="qt"><b>リカバリー：散歩 10分</b><small>アプリからの提案</small></div><div class="xp">+10</div></div>
+  <div class="q off"><div class="chk"></div><div class="qt"><b>早起き 6:30</b><small>お休み中（旅行）</small></div><div class="toggle"></div></div>
+  <div class="tab"><u>ホーム</u><u class="on">クエスト</u><u>記録</u><u>設定</u></div>
+</div></div>
+
+<!-- 画面3 使用時間入力 -->
+<div class="phone"><div class="screen">
+  <div class="cap">③ 使用時間の記入</div>
+  <h2>昨日のスマホ使用時間</h2>
+  <p class="hint">スクリーンタイムの数字を入力。YouTubeの流しっぱなしなどは引いてOK。</p>
+  <div class="bignum"><b>3</b><small>時間</small><b>20</b><small>分</small></div>
+  <div class="goal">目標：4時間以内　<span>達成</span></div>
+  <div class="card"><span>獲得経験値</span><b>+40 XP</b></div>
+  <button class="btn">記録する</button>
+  <div class="tab"><u>ホーム</u><u>クエスト</u><u class="on">記録</u><u>設定</u></div>
+</div></div>
+
+</div>
+</body></html>
