@@ -1,11 +1,11 @@
 import {
   todayQuests, toggleDone, setPaused, isPausedNow, answerOffer, completeOffer,
-  missedYesterday, shieldAvailable, useShield,
+  missedYesterday, shieldAvailable, useShield, todayUrgent, toggleUrgent, deleteUrgent,
 } from '../logic/engine.js';
 import { MULTS } from '../logic/penalty.js';
 import { taskText } from '../logic/recovery.js';
 import { esc, fmtAmount, fmtDays } from './util.js';
-import { openEditor } from './editor.js';
+import { openEditor, openUrgentEditor } from './editor.js';
 
 const KIND = { amount: '量あり', check: '量なし', limit: '以内' };
 
@@ -44,9 +44,22 @@ function rowHTML(t) {
     ${chk}<div class="qt"><b>${esc(q.name)}</b><small>${sub}</small></div><div class="xp">+${q.xp}</div></div>`;
 }
 
+function urgentHTML(t) {
+  const u = t.urgent;
+  return `<div class="win q emergency ${t.done ? 'done' : ''}">
+    <button class="chk" data-act="urgentDone" data-q="${u.id}">${t.done ? '✓' : ''}</button>
+    <div class="qt"><span class="tag">EMERGENCY</span><b>${esc(u.name)}</b><small>今日の朝3時まで・1回きり</small></div>
+    <div class="xp">+${u.xp}</div>
+    <button class="mini" data-act="urgentDelete" data-q="${u.id}" aria-label="削除">削除</button></div>`;
+}
+
 export function view(ctx) {
   const { s, today } = ctx;
   let html = '';
+
+  const urgent = todayUrgent(s, today);
+  if (urgent.length) html += `<h2 class="em-h">緊急クエスト</h2>${urgent.map(urgentHTML).join('')}`;
+  html += '<button class="btn em-btn" data-act="newUrgent">＋ 緊急クエストを追加</button>';
 
   const offers = (s.offers[today] ?? []).filter((o) => o.status !== 'rejected');
   if (offers.length) html += `<h2>リカバリークエスト</h2>${offers.map((o) => offerHTML(s, o)).join('')}`;
@@ -99,4 +112,10 @@ export const actions = {
   },
   edit: (el, ctx) => openEditor(ctx, el.dataset.q),
   new: (el, ctx) => openEditor(ctx, null),
+  newUrgent: (el, ctx) => openUrgentEditor(ctx),
+  urgentDone: (el, ctx) => ctx.commit(toggleUrgent(ctx.s, el.dataset.q, ctx.today)),
+  urgentDelete: (el, ctx) => {
+    if (!confirm('この緊急クエストを削除しますか？')) return;
+    ctx.commit(deleteUrgent(ctx.s, el.dataset.q));
+  },
 };

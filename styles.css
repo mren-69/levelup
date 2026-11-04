@@ -86,6 +86,24 @@ h2:first-child { margin-top: 4px; }
 .toggle.on { background: var(--accent); box-shadow: 0 0 10px rgba(79,209,255,.6); }
 .toggle.on::after { left: 21px; background: #fff; }
 
+/* 緊急クエスト: 赤く光る EMERGENCY */
+.em-h { border-left-color: var(--red); color: #ff8a82; text-shadow: 0 0 10px rgba(255,90,79,.7); }
+.win.emergency { border-color: var(--red); background: linear-gradient(180deg, rgba(110,18,18,.6), rgba(20,6,10,.92));
+  box-shadow: 0 0 16px rgba(255,90,79,.45), inset 0 0 14px rgba(255,90,79,.12); animation: emglow 1.8s ease-in-out infinite; }
+.win.emergency::before, .win.emergency::after { border-color: var(--red); }
+.emergency .tag { display: inline-block; margin-right: 8px; padding: 1px 7px; font-family: var(--head); font-size: 10px; font-weight: 800; letter-spacing: .15em;
+  color: #fff; background: var(--red); border-radius: 2px; text-shadow: 0 0 8px rgba(255,255,255,.7); }
+.q.emergency .tag { display: block; width: fit-content; margin: 0 0 4px; }
+.q.emergency .chk { border-color: var(--red); box-shadow: 0 0 10px rgba(255,90,79,.7); }
+.q.emergency.done { border-color: rgba(246,196,83,.7); background: linear-gradient(180deg, rgba(60,45,10,.55), rgba(20,6,10,.9)); animation: none; box-shadow: 0 0 10px rgba(246,196,83,.3); }
+.q.emergency.done .chk { border-color: var(--gold); }
+.q.emergency .mini, .emergency .mini { border-color: var(--red); color: #ff8a82; }
+.card.emergency b { color: #ff8a82; }
+@keyframes emglow { 50% { box-shadow: 0 0 26px rgba(255,90,79,.8), inset 0 0 18px rgba(255,90,79,.2); } }
+.btn.em-btn { background: transparent; color: #ff8a82; border: 1px solid var(--red); box-shadow: 0 0 12px rgba(255,90,79,.35); letter-spacing: .08em; margin: 0 0 6px; }
+.em-panel { border-top-color: var(--red); background: linear-gradient(180deg, #2a0a0e, #05070d); }
+.em-panel .btn.em-btn { background: linear-gradient(180deg, #ff8a82, #e5534b 55%, #8f1d17); color: #fff; border: 0; letter-spacing: .2em; box-shadow: 0 0 18px rgba(255,90,79,.55); }
+
 /* リカバリー: 承認 / 拒否 */
 .offer { padding: 14px; margin-bottom: 10px; border-color: var(--violet); }
 .offer::before, .offer::after { border-color: var(--violet); }

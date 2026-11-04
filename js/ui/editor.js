@@ -1,4 +1,4 @@
-import { addQuest, updateQuest, deleteQuest } from '../logic/engine.js';
+import { addQuest, updateQuest, deleteQuest, addUrgent } from '../logic/engine.js';
 import { XP_SLOTS } from '../logic/leveling.js';
 import { esc, WEEKDAYS } from './util.js';
 
@@ -11,6 +11,7 @@ const sheet = () => document.getElementById('sheet');
 
 export function openEditor(ctx, id) {
   ctxRef = ctx;
+  urgentMode = false;
   editingId = id;
   error = '';
   const q = id ? ctx.s.quests.find((x) => x.id === id) : null;
@@ -24,6 +25,31 @@ export function openEditor(ctx, id) {
 function close() {
   sheet().hidden = true;
   sheet().innerHTML = '';
+}
+
+// ---- 緊急クエスト用の入力シート ----
+let urgentMode = false;
+
+export function openUrgentEditor(ctx) {
+  ctxRef = ctx;
+  urgentMode = true;
+  editingId = null;
+  error = '';
+  draft = { name: '', xp: 20 };
+  renderUrgent();
+  sheet().hidden = false;
+}
+
+function renderUrgent() {
+  sheet().innerHTML = `<div class="panel em-panel">
+    <h2 class="em-h" style="margin-top:0">緊急クエストを追加</h2>
+    <p class="note">その日かぎりの1回きりのミッション。今日の朝3時になるとできていなくても消えます（ペナルティなし）。</p>
+    <div class="field"><label>名前</label><input type="text" id="ed-name" maxlength="40" value="${esc(draft.name)}" placeholder="例：お風呂掃除、お使い"></div>
+    <div class="field"><label>経験値の枠</label>${seg('xp', XP_SLOTS.map((v) => [v, v]), draft.xp)}</div>
+    <div class="err">${esc(error)}</div>
+    <button class="btn em-btn" data-ed="save">追加する</button>
+    <button class="btn sub" data-ed="cancel">キャンセル</button>
+  </div>`;
 }
 
 function seg(group, items, current) {
@@ -75,6 +101,17 @@ function onClick(e) {
   readInputs();
   const a = el.dataset.ed;
   const v = el.dataset.v;
+  if (urgentMode) {
+    if (a === 'xp') draft.xp = Number(v);
+    else if (a === 'cancel') return close();
+    else if (a === 'save') {
+      try {
+        ctxRef.commit(addUrgent(ctxRef.s, draft, ctxRef.today));
+        return close();
+      } catch (err) { error = err.message; }
+    }
+    return renderUrgent();
+  }
   if (a === 'kind') {
     if (v !== draft.kind) {
       draft.kind = v;

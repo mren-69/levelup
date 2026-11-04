@@ -19,6 +19,7 @@ export function newState(today) {
     offers: {},
     shields: {},
     misses: {},
+    urgent: [],
     settledThrough: addDays(today, -1),
     seenLevel: 1,
     view: { pic: 'avatar' },
@@ -152,8 +153,43 @@ export function settle(s, today, rand = Math.random) {
     if (weekday(d) === 0 && !n.shields[weekKey(d)]?.used && weekHasActivity(n, d)) {
       log(n, d).bonus = WEEK_BONUS_XP;
     }
+    // 緊急クエストは、追加した日が終わる(朝3時)と消える。得た経験値はlogsに残る
+    if (n.urgent) n.urgent = n.urgent.filter((u) => u.day > d);
     n.settledThrough = d;
   }
+  return n;
+}
+
+// ---- 緊急クエスト(その日かぎりの1回きりミッション) ----
+
+export function addUrgent(s, fields, today) {
+  const name = String(fields.name ?? '').trim();
+  if (!name) throw new Error('名前を入れてください');
+  if (!XP_SLOTS.includes(Number(fields.xp))) throw new Error('経験値は決められた枠から選んでください');
+  const n = clone(s);
+  (n.urgent ??= []).push({ id: newId(), name, xp: Number(fields.xp), day: today });
+  return n;
+}
+
+export function deleteUrgent(s, id) {
+  const n = clone(s);
+  n.urgent = (n.urgent ?? []).filter((u) => u.id !== id);
+  return n;
+}
+
+export function todayUrgent(s, today) {
+  return (s.urgent ?? [])
+    .filter((u) => u.day === today)
+    .map((u) => ({ urgent: u, done: s.logs[today]?.done?.[u.id] !== undefined }));
+}
+
+export function toggleUrgent(s, id, today) {
+  const u = (s.urgent ?? []).find((x) => x.id === id);
+  if (!u || u.day !== today) throw new Error('この緊急クエストは今日のものではありません');
+  const n = clone(s);
+  const l = log(n, today);
+  if (l.done[id] !== undefined) delete l.done[id];
+  else l.done[id] = u.xp;
   return n;
 }
 

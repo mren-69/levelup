@@ -1,5 +1,5 @@
 import { levelInfo, roleFor } from '../logic/leveling.js';
-import { totalXp, todayQuests, shieldAvailable, missedYesterday } from '../logic/engine.js';
+import { totalXp, todayQuests, shieldAvailable, missedYesterday, todayUrgent } from '../logic/engine.js';
 import { addDays } from '../logic/dates.js';
 import { MULTS } from '../logic/penalty.js';
 import { esc, SILHOUETTE } from './util.js';
@@ -30,7 +30,13 @@ export function view(ctx) {
   const missed = missedYesterday(s, today);
   const usageMissing = (s.logs[addDays(today, -1)]?.usage ?? null) === null;
 
+  const urgent = todayUrgent(s, today);
+  const urgentLeft = urgent.filter((t) => !t.done).length;
+
   let cards = '';
+  if (urgent.length) {
+    cards += `<div class="win card emergency link" data-act="go" data-tab="quests"><span><span class="tag">EMERGENCY</span>緊急クエスト</span><b>${urgentLeft ? `あと${urgentLeft}件` : '全部完了'}</b></div>`;
+  }
   cards += `<div class="win card"><span>お休みシールド</span><b style="color:var(--accent)">今週 ${shieldAvailable(s, today) ? 1 : 0} / 1</b></div>`;
   if (penalized.length) {
     cards += `<div class="win card warn link" data-act="go" data-tab="quests"><span>ペナルティ中：${penalized.map((t) => esc(t.quest.name)).join('、')}</span><b>×${maxMult(penalized)}</b></div>`;
