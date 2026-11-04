@@ -1,5 +1,5 @@
 // オフライン用。ファイルを変えたら VERSION を上げる。
-const VERSION = 'levelup-v2';
+const VERSION = 'levelup-v3';
 const FILES = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest', 'fonts/orbitron.woff2',
   'icons/icon-180.png', 'icons/icon-512.png',
@@ -7,7 +7,7 @@ const FILES = [
   'js/logic/dates.js', 'js/logic/leveling.js', 'js/logic/penalty.js', 'js/logic/recovery.js',
   'js/logic/recovery-pool.js', 'js/logic/engine.js',
   'js/ui/util.js', 'js/ui/home.js', 'js/ui/quests.js', 'js/ui/record.js', 'js/ui/settings.js',
-  'js/ui/editor.js', 'js/ui/fx.js',
+  'js/ui/editor.js', 'js/ui/fx.js', 'js/ui/drag.js',
 ];
 
 self.addEventListener('install', (e) => {

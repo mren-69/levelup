@@ -1,6 +1,6 @@
 import {
   todayQuests, toggleDone, setPaused, isPausedNow, answerOffer, completeOffer,
-  missedYesterday, shieldAvailable, useShield, todayUrgent, toggleUrgent, deleteUrgent,
+  missedYesterday, shieldAvailable, useShield, todayUrgent, toggleUrgent, deleteUrgent, moveQuest, moveToday,
 } from '../logic/engine.js';
 import { MULTS } from '../logic/penalty.js';
 import { taskText } from '../logic/recovery.js';
@@ -40,7 +40,7 @@ function rowHTML(t) {
   const chk = q.kind === 'limit'
     ? '<div class="chk auto">自動</div>'
     : `<button class="chk" data-act="done" data-q="${q.id}" ${t.paused ? 'disabled' : ''}>${t.done ? '✓' : ''}</button>`;
-  return `<div class="win q ${t.done ? 'done' : ''} ${t.paused ? 'off' : ''}">
+  return `<div class="win q ${t.done ? 'done' : ''} ${t.paused ? 'off' : ''}" data-sort="${q.id}">
     ${chk}<div class="qt"><b>${esc(q.name)}</b><small>${sub}</small></div><div class="xp">+${q.xp}</div></div>`;
 }
 
@@ -77,19 +77,29 @@ export function view(ctx) {
 
   const list = todayQuests(s, today);
   html += '<h2>今日のクエスト</h2>';
-  html += list.length ? list.map(rowHTML).join('') : '<div class="empty">今日のクエストはありません</div>';
+  if (list.length) {
+    html += '<p class="note">長押ししてドラッグで並べ替え（今日だけ。明日は「すべてのクエスト」の順番に戻ります）。</p>';
+    html += `<div data-sortable="today">${list.map(rowHTML).join('')}</div>`;
+  } else html += '<div class="empty">今日のクエストはありません</div>';
 
-  html += '<h2>すべてのクエスト</h2><p class="note">スイッチをオフにすると、その間はお休み（ペナルティなし）。旅行や体調不良のときに。</p>';
-  html += s.quests.map((q) => {
+  html += '<h2>すべてのクエスト</h2><p class="note">スイッチをオフにすると、その間はお休み（ペナルティなし）。旅行や体調不良のときに。長押ししてドラッグで並べ替え（この順番はずっと残ります）。</p>';
+  html += `<div data-sortable="all">${s.quests.map((q) => {
     const on = !isPausedNow(q);
     const amount = q.kind === 'check' ? '' : `・${fmtAmount(q.base, q.unit)}${q.kind === 'limit' ? '以内' : ''}`;
-    return `<div class="win q ${on ? '' : 'off'}" style="opacity:1">
+    return `<div class="win q ${on ? '' : 'off'}" style="opacity:1" data-sort="${q.id}">
       <div class="qt"><b>${esc(q.name)}</b><small>${KIND[q.kind]}${amount}・${fmtDays(q.days)}・${q.xp}XP</small></div>
       <button class="mini" data-act="edit" data-q="${q.id}">編集</button>
       <button class="toggle ${on ? 'on' : ''}" data-act="pause" data-q="${q.id}" aria-label="オン/オフ"></button></div>`;
-  }).join('');
+  }).join('')}</div>`;
   html += '<button class="btn" data-act="new" style="margin-top:14px">＋ クエストを追加</button>';
   return html;
+}
+
+/** ドラッグを離したとき。kind: 'today' | 'all'。index は一覧の中での新しい位置 */
+export function onSort(ctx, kind, id, index) {
+  if (kind === 'all') ctx.commit(moveQuest(ctx.s, id, index));
+  else if (kind === 'today') ctx.commit(moveToday(ctx.s, id, index, ctx.today));
+  else ctx.render(); // 中断: 元の並びに戻す
 }
 
 export const actions = {

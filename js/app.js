@@ -7,6 +7,7 @@ import * as quests from './ui/quests.js';
 import * as record from './ui/record.js';
 import * as settings from './ui/settings.js';
 import { initEditor } from './ui/editor.js';
+import { initSortable } from './ui/drag.js';
 import { showLevelUp, toast } from './ui/fx.js';
 
 const VIEWS = { home, quests, record, settings };
@@ -73,6 +74,7 @@ root.addEventListener('click', async (e) => {
   const fn = ACTIONS[el.dataset.act];
   if (fn) await fn(el, ctx);
 });
+initSortable(root, (kind, id, index) => quests.onSort(ctx, kind, id, index));
 document.getElementById('tabs').addEventListener('click', (e) => {
   const b = e.target.closest('[data-tab]');
   if (b) ctx.go(b.dataset.tab);

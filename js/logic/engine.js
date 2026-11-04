@@ -86,9 +86,45 @@ export function isPausedNow(q) {
   return q.paused.some((r) => r.to === null);
 }
 
+/** 今日の表示順: 今日だけの並べ替えがあればそれ、なければ(明日以降も)すべてのクエストの順番 */
+function todayOrdered(s, today) {
+  const list = s.quests.filter((q) => isScheduled(q, today));
+  const o = s.todayOrder;
+  if (!o || o.day !== today) return list;
+  const rank = new Map(o.ids.map((id, i) => [id, i]));
+  const known = list.filter((q) => rank.has(q.id)).sort((a, b) => rank.get(a.id) - rank.get(b.id));
+  return [...known, ...list.filter((q) => !rank.has(q.id))]; // 後から増えたものは一番下
+}
+
+function moved(arr, from, to) {
+  const out = [...arr];
+  const [item] = out.splice(from, 1);
+  out.splice(Math.max(0, Math.min(out.length, to)), 0, item);
+  return out;
+}
+
+/** すべてのクエストの並べ替え(順番はずっと保存される。今日だけの並べ替えは上書きされる) */
+export function moveQuest(s, id, toIndex) {
+  const from = s.quests.findIndex((q) => q.id === id);
+  if (from < 0) return s;
+  const n = clone(s);
+  n.quests = moved(n.quests, from, toIndex);
+  delete n.todayOrder;
+  return n;
+}
+
+/** 今日のクエストだけの並べ替え(今日かぎり。翌日からはすべてのクエストの順番に戻る) */
+export function moveToday(s, id, toIndex, today) {
+  const ids = todayOrdered(s, today).map((q) => q.id);
+  const from = ids.indexOf(id);
+  if (from < 0) return s;
+  const n = clone(s);
+  n.todayOrder = { day: today, ids: moved(ids, from, toIndex) };
+  return n;
+}
+
 export function todayQuests(s, today) {
-  return s.quests
-    .filter((q) => isScheduled(q, today))
+  return todayOrdered(s, today)
     .map((q) => {
       const stage = q.kind === 'amount' ? (s.pen[q.id] ?? 0) : 0;
       return {
