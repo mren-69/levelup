@@ -1,6 +1,6 @@
 import {
   todayQuests, toggleDone, setPaused, isPausedNow, answerOffer, completeOffer,
-  missedYesterday, shieldAvailable, useShield, todayUrgent, scheduledUrgent, toggleUrgent, deleteUrgent, moveQuest, moveToday,
+  missedYesterday, shieldAvailable, useShield, yesterdayReview, toggleYesterday, todayUrgent, scheduledUrgent, toggleUrgent, deleteUrgent, moveQuest, moveToday,
 } from '../logic/engine.js';
 import { MULTS } from '../logic/penalty.js';
 import { taskText } from '../logic/recovery.js';
@@ -72,23 +72,34 @@ export function view(ctx) {
   const offers = (s.offers[today] ?? []).filter((o) => o.status !== 'rejected');
   if (offers.length) html += `<h2>リカバリークエスト</h2>${offers.map((o) => offerHTML(s, o)).join('')}`;
 
-  const missed = missedYesterday(s, today);
-  if (missed.length) {
-    const avail = shieldAvailable(s, today);
-    html += `<h2>昨日の未達成</h2><p class="note">お休みシールド（週1回）を使うと、1つだけ帳消しにできます。${avail ? '' : '今週はもう使いました。'}</p>`;
-    html += missed.map((id) => {
-      const q = s.quests.find((x) => x.id === id);
-      if (!q) return '';
-      return `<div class="win card"><span>${esc(q.name)}</span>${avail ? `<button class="mini" data-act="shield" data-q="${id}">シールドを使う</button>` : '<b style="color:var(--dim)">使用不可</b>'}</div>`;
-    }).join('');
-  }
-
   const list = todayQuests(s, today);
   html += '<h2>今日のクエスト</h2>';
   if (list.length) {
     html += '<p class="note">長押ししてドラッグで並べ替え（今日だけ。明日は「すべてのクエスト」の順番に戻ります）。</p>';
     html += `<div data-sortable="today">${list.map(rowHTML).join('')}</div>`;
   } else html += '<div class="empty">今日のクエストはありません</div>';
+
+  // 昨日の振り返り: 昨日できなかった「量なし」(チェックできる) と、量ありの未達成(シールド)
+  const review = yesterdayReview(s, today);
+  const missed = missedYesterday(s, today);
+  if (review.length || missed.length) {
+    html += '<h2 class="rv-h">昨日の振り返り</h2>';
+    if (review.length) {
+      html += '<p class="note">昨日できなかったクエスト。今からできたら、チェックで昨日の分として経験値が入ります。</p>';
+      html += review.map((q) => `<div class="win q review">
+        <button class="chk" data-act="reviewDone" data-q="${q.id}"></button>
+        <div class="qt"><b>${esc(q.name)}</b><small>昨日の分・達成したらチェック</small></div><div class="xp">+${q.xp}</div></div>`).join('');
+    }
+    if (missed.length) {
+      const avail = shieldAvailable(s, today);
+      html += `<p class="note">量のあるクエストの未達成。お休みシールド（週1回）を使うと、1つだけ帳消しにできます。${avail ? '' : '今週はもう使いました。'}</p>`;
+      html += missed.map((id) => {
+        const q = s.quests.find((x) => x.id === id);
+        if (!q) return '';
+        return `<div class="win card"><span>${esc(q.name)}</span>${avail ? `<button class="mini" data-act="shield" data-q="${id}">シールドを使う</button>` : '<b style="color:var(--dim)">使用不可</b>'}</div>`;
+      }).join('');
+    }
+  }
 
   html += '<h2>すべてのクエスト</h2><p class="note">スイッチをオフにすると、その間はお休み（ペナルティなし）。旅行や体調不良のときに。長押ししてドラッグで並べ替え（この順番はずっと残ります）。</p>';
   html += `<div data-sortable="all">${s.quests.map((q) => {
@@ -112,6 +123,13 @@ export function onSort(ctx, kind, id, index) {
 
 export const actions = {
   done: (el, ctx) => ctx.commit(toggleDone(ctx.s, el.dataset.q, ctx.today)),
+  reviewDone: (el, ctx) => {
+    try {
+      const q = ctx.s.quests.find((x) => x.id === el.dataset.q);
+      ctx.commit(toggleYesterday(ctx.s, el.dataset.q, ctx.today));
+      ctx.toast(`昨日の分として +${q.xp} XP`);
+    } catch (e) { ctx.toast(e.message); }
+  },
   pause: (el, ctx) => {
     const q = ctx.s.quests.find((x) => x.id === el.dataset.q);
     ctx.commit(setPaused(ctx.s, q.id, !isPausedNow(q), ctx.today));

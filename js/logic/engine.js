@@ -147,6 +147,25 @@ export function toggleDone(s, questId, today) {
   return n;
 }
 
+// ---- 昨日の振り返り(「量なし」だけ。量あり・以内は締めで確定済みなので対象外) ----
+
+function reviewable(s, key) {
+  return s.quests.filter((q) => q.kind === 'check' && isScheduled(q, key) && !isPaused(q, key));
+}
+
+/** 昨日できなかった「量なし」クエスト */
+export function yesterdayReview(s, today) {
+  const y = addDays(today, -1);
+  return reviewable(s, y).filter((q) => s.logs[y]?.done?.[q.id] === undefined);
+}
+
+/** 昨日の分としてチェックを付ける(外す)。ペナルティ・リカバリー・シールドには影響しない */
+export function toggleYesterday(s, questId, today) {
+  const y = addDays(today, -1);
+  if (!reviewable(s, y).some((q) => q.id === questId)) throw new Error('昨日の分としてチェックできないクエストです');
+  return toggleDone(s, questId, y);
+}
+
 export function setPaused(s, questId, paused, today) {
   const n = clone(s);
   const q = n.quests.find((x) => x.id === questId);

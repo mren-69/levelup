@@ -107,6 +107,13 @@ body.is-sorting { overflow-x: hidden; cursor: grabbing; }
 .q.emergency .mini, .emergency .mini { border-color: var(--red); color: #ff8a82; }
 .card.emergency b { color: #ff8a82; }
 @keyframes emglow { 50% { box-shadow: 0 0 26px rgba(255,90,79,.8), inset 0 0 18px rgba(255,90,79,.2); } }
+/* 昨日の振り返り: 過去の分なので、少し落ち着いた青紫 */
+.rv-h { border-left-color: var(--violet); }
+.q.review { border-color: rgba(155,123,255,.6); }
+.q.review::before, .q.review::after { border-color: var(--violet); }
+.q.review .chk { border-color: var(--violet); box-shadow: 0 0 8px rgba(155,123,255,.5); }
+.q.review .xp { color: #c9b6ff; text-shadow: none; }
+
 /* 明日の予約: まだ発動していないので、緊急クエストより落ち着いた赤。光らない */
 .sch-h { font-size: 16px; opacity: .85; }
 .win.scheduled { border-color: rgba(255,90,79,.45); border-style: dashed; background: linear-gradient(180deg, rgba(60,14,16,.5), rgba(10,6,12,.9)); box-shadow: none; }
