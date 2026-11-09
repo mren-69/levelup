@@ -107,6 +107,14 @@ body.is-sorting { overflow-x: hidden; cursor: grabbing; }
 .q.emergency .mini, .emergency .mini { border-color: var(--red); color: #ff8a82; }
 .card.emergency b { color: #ff8a82; }
 @keyframes emglow { 50% { box-shadow: 0 0 26px rgba(255,90,79,.8), inset 0 0 18px rgba(255,90,79,.2); } }
+/* 明日の予約: まだ発動していないので、緊急クエストより落ち着いた赤。光らない */
+.sch-h { font-size: 16px; opacity: .85; }
+.win.scheduled { border-color: rgba(255,90,79,.45); border-style: dashed; background: linear-gradient(180deg, rgba(60,14,16,.5), rgba(10,6,12,.9)); box-shadow: none; }
+.win.scheduled::before, .win.scheduled::after { border-color: rgba(255,90,79,.5); }
+.q.scheduled .tag { display: block; width: fit-content; margin: 0 0 4px; padding: 1px 7px; font-size: 10px; font-weight: 800; letter-spacing: .15em;
+  color: #ff8a82; border: 1px solid rgba(255,90,79,.6); border-radius: 2px; }
+.q.scheduled .xp { color: #d9a87c; text-shadow: none; }
+.q.scheduled .mini { border-color: rgba(255,90,79,.6); color: #ff8a82; }
 .btn.em-btn { background: transparent; color: #ff8a82; border: 1px solid var(--red); box-shadow: 0 0 12px rgba(255,90,79,.35); letter-spacing: .08em; margin: 0 0 6px; }
 .em-panel { border-top-color: var(--red); background: linear-gradient(180deg, #2a0a0e, #05070d); }
 .em-panel .btn.em-btn { background: linear-gradient(180deg, #ff8a82, #e5534b 55%, #8f1d17); color: #fff; border: 0; letter-spacing: .2em; box-shadow: 0 0 18px rgba(255,90,79,.55); }

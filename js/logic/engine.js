@@ -203,8 +203,16 @@ export function addUrgent(s, fields, today) {
   if (!name) throw new Error('名前を入れてください');
   if (!XP_SLOTS.includes(Number(fields.xp))) throw new Error('経験値は決められた枠から選んでください');
   const n = clone(s);
-  (n.urgent ??= []).push({ id: newId(), name, xp: Number(fields.xp), day: today });
+  // when: 'tomorrow' なら予約(明日の朝3時から発動)。それ以外は今日
+  const day = fields.when === 'tomorrow' ? addDays(today, 1) : today;
+  (n.urgent ??= []).push({ id: newId(), name, xp: Number(fields.xp), day });
   return n;
+}
+
+/** 明日に予約してある緊急クエスト(まだ発動していない) */
+export function scheduledUrgent(s, today) {
+  const tomorrow = addDays(today, 1);
+  return (s.urgent ?? []).filter((u) => u.day === tomorrow);
 }
 
 export function deleteUrgent(s, id) {

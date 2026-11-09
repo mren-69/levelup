@@ -1,6 +1,6 @@
 import {
   todayQuests, toggleDone, setPaused, isPausedNow, answerOffer, completeOffer,
-  missedYesterday, shieldAvailable, useShield, todayUrgent, toggleUrgent, deleteUrgent, moveQuest, moveToday,
+  missedYesterday, shieldAvailable, useShield, todayUrgent, scheduledUrgent, toggleUrgent, deleteUrgent, moveQuest, moveToday,
 } from '../logic/engine.js';
 import { MULTS } from '../logic/penalty.js';
 import { taskText } from '../logic/recovery.js';
@@ -60,6 +60,14 @@ export function view(ctx) {
   const urgent = todayUrgent(s, today);
   if (urgent.length) html += `<h2 class="em-h">緊急クエスト</h2>${urgent.map(urgentHTML).join('')}`;
   html += '<button class="btn em-btn" data-act="newUrgent">＋ 緊急クエストを追加</button>';
+
+  const scheduled = scheduledUrgent(s, today);
+  if (scheduled.length) {
+    html += `<h2 class="em-h sch-h">明日の予約</h2><p class="note">明日の朝3時になると、緊急クエストとして出ます。</p>${scheduled.map((u) => `
+      <div class="win q scheduled"><div class="qt"><span class="tag">予約</span><b>${esc(u.name)}</b><small>明日の朝3時から</small></div>
+      <div class="xp">+${u.xp}</div>
+      <button class="mini" data-act="urgentDelete" data-q="${u.id}" aria-label="削除">削除</button></div>`).join('')}`;
+  }
 
   const offers = (s.offers[today] ?? []).filter((o) => o.status !== 'rejected');
   if (offers.length) html += `<h2>リカバリークエスト</h2>${offers.map((o) => offerHTML(s, o)).join('')}`;

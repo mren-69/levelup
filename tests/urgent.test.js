@@ -113,3 +113,59 @@ test('以前の保存データ(urgentなし)でも動く', () => {
   assert.equal(s.urgent.length, 1);
   assert.doesNotThrow(() => settle(old, day(2), r0));
 });
+
+// ---- 明日の予約 ----
+import { scheduledUrgent } from '../js/logic/engine.js';
+
+test('明日の予約: 今日のクエストには出ず、予約の欄に出る', () => {
+  let s = addUrgent(newState(D1), { name: '病院', xp: 30, when: 'tomorrow' }, D1);
+  assert.equal(todayUrgent(s, D1).length, 0);
+  const list = scheduledUrgent(s, D1);
+  assert.equal(list.length, 1);
+  assert.equal(list[0].name, '病院');
+  assert.equal(list[0].day, day(1));
+});
+
+test('明日の予約: 今日のうちはチェックできず、経験値も入らない', () => {
+  let s = addUrgent(newState(D1), { name: '病院', xp: 30, when: 'tomorrow' }, D1);
+  assert.throws(() => toggleUrgent(s, s.urgent[0].id, D1));
+  assert.equal(totalXp(s), 0);
+});
+
+test('明日の予約: 今日の締めでは消えず、日が変わると緊急クエストとして出る', () => {
+  let s = addUrgent(newState(D1), { name: '病院', xp: 30, when: 'tomorrow' }, D1);
+  s = settle(s, D1, r0);
+  assert.equal(scheduledUrgent(s, D1).length, 1);
+  s = settle(s, day(1), r0);
+  assert.equal(todayUrgent(s, day(1)).length, 1);
+  assert.equal(scheduledUrgent(s, day(1)).length, 0);
+  s = toggleUrgent(s, s.urgent[0].id, day(1));
+  assert.equal(totalXp(s), 30);
+});
+
+test('明日の予約: そのまま日が変わって、さらにその翌日になると消える', () => {
+  let s = addUrgent(newState(D1), { name: '病院', xp: 30, when: 'tomorrow' }, D1);
+  s = settle(s, day(2), r0);
+  assert.equal(s.urgent.length, 0);
+  assert.equal(totalXp(s), 0);
+});
+
+test('明日の予約: 削除できる', () => {
+  let s = addUrgent(newState(D1), { name: '病院', xp: 30, when: 'tomorrow' }, D1);
+  s = deleteUrgent(s, s.urgent[0].id);
+  assert.equal(scheduledUrgent(s, D1).length, 0);
+});
+
+test('明日の予約と今日の緊急クエストは同時に持てる', () => {
+  let s = newState(D1);
+  s = addUrgent(s, { name: '今日', xp: 5 }, D1);
+  s = addUrgent(s, { name: '明日', xp: 10, when: 'tomorrow' }, D1);
+  assert.equal(todayUrgent(s, D1).length, 1);
+  assert.equal(scheduledUrgent(s, D1).length, 1);
+});
+
+test('以前の保存データ(urgentなし)でも予約の一覧が空で動く', () => {
+  const old = newState(D1);
+  delete old.urgent;
+  assert.deepEqual(scheduledUrgent(old, D1), []);
+});

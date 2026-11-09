@@ -35,7 +35,7 @@ export function openUrgentEditor(ctx) {
   urgentMode = true;
   editingId = null;
   error = '';
-  draft = { name: '', xp: 20 };
+  draft = { name: '', xp: 20, when: 'today' };
   renderUrgent();
   sheet().hidden = false;
 }
@@ -43,8 +43,10 @@ export function openUrgentEditor(ctx) {
 function renderUrgent() {
   sheet().innerHTML = `<div class="panel em-panel">
     <h2 class="em-h" style="margin-top:0">緊急クエストを追加</h2>
-    <p class="note">その日かぎりの1回きりのミッション。今日の朝3時になるとできていなくても消えます（ペナルティなし）。</p>
+    <p class="note">その日かぎりの1回きりのミッション。その日の朝3時になると、できていなくても消えます（ペナルティなし）。</p>
     <div class="field"><label>名前</label><input type="text" id="ed-name" maxlength="40" value="${esc(draft.name)}" placeholder="例：お風呂掃除、お使い"></div>
+    <div class="field"><label>いつ</label>${seg('when', [['today', '今日'], ['tomorrow', '明日（予約）']], draft.when)}
+      ${draft.when === 'tomorrow' ? '<p class="note" style="margin:8px 0 0">明日の朝3時になると、赤い緊急クエストとして出ます。</p>' : ''}</div>
     <div class="field"><label>経験値の枠</label>${seg('xp', XP_SLOTS.map((v) => [v, v]), draft.xp)}</div>
     <div class="err">${esc(error)}</div>
     <button class="btn em-btn" data-ed="save">追加する</button>
@@ -103,10 +105,12 @@ function onClick(e) {
   const v = el.dataset.v;
   if (urgentMode) {
     if (a === 'xp') draft.xp = Number(v);
+    else if (a === 'when') draft.when = v;
     else if (a === 'cancel') return close();
     else if (a === 'save') {
       try {
         ctxRef.commit(addUrgent(ctxRef.s, draft, ctxRef.today));
+        ctxRef.toast(draft.when === 'tomorrow' ? '明日に予約しました' : '緊急クエストを追加しました');
         return close();
       } catch (err) { error = err.message; }
     }
