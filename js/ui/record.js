@@ -1,6 +1,22 @@
 import { addDays } from '../logic/dates.js';
-import { setUsage, isScheduled, isPaused } from '../logic/engine.js';
-import { esc, fmtDate, fmtMinutes } from './util.js';
+import { setUsage, isScheduled, isPaused, dailyPoints, KEEP_DAYS } from '../logic/engine.js';
+import { weekday } from '../logic/dates.js';
+import { esc, fmtDate, fmtMinutes, WEEKDAYS } from './util.js';
+
+function historyHTML(s, today) {
+  const list = dailyPoints(s, today);
+  const max = Math.max(1, ...list.map((d) => d.xp));
+  const rows = list.map((d) => `
+    <div class="hist-row${d.partial ? ' today' : ''}">
+      <div class="hist-day">${fmtDate(d.day)}<small>（${WEEKDAYS[weekday(d.day)]}）</small>${d.partial ? '<span class="hist-tag">途中</span>' : ''}</div>
+      <div class="hist-bar"><i style="width:${Math.round((d.xp / max) * 100)}%"></i></div>
+      <div class="hist-xp">${d.xp}</div>
+      <div class="hist-drop">${d.drop ? `▼${d.drop}` : ''}</div>
+    </div>`).join('');
+  return `<h2>日ごとの獲得ポイント</h2>
+    <p class="note">直近${KEEP_DAYS}日分。前の日より減った日には ▼ と減った分が付きます。</p>
+    <div class="win hist">${rows}</div>`;
+}
 
 export function view(ctx) {
   const { s, today } = ctx;
@@ -27,7 +43,8 @@ export function view(ctx) {
     <button class="btn" data-act="usage">記録する</button>
     ${usage !== null ? `<p class="note" style="margin-top:12px">記録済み：${fmtMinutes(usage)}（入れ直すと上書きされます）</p>` : ''}
   </div>
-  ${limits.length ? `<h2>判定</h2>${results || '<div class="empty">記録すると、ここに結果が出ます</div>'}` : '<p class="note">「〜以内」のクエストを作ると、ここで自動で判定されます。</p>'}`;
+  ${limits.length ? `<h2>判定</h2>${results || '<div class="empty">記録すると、ここに結果が出ます</div>'}` : '<p class="note">「〜以内」のクエストを作ると、ここで自動で判定されます。</p>'}
+  ${historyHTML(s, today)}`;
 }
 
 export const actions = {

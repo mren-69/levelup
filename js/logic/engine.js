@@ -212,6 +212,7 @@ export function settle(s, today, rand = Math.random) {
     if (n.urgent) n.urgent = n.urgent.filter((u) => u.day > d);
     n.settledThrough = d;
   }
+  pruneOld(n, today);
   return n;
 }
 
@@ -315,12 +316,52 @@ export function setUsage(s, minutes, today) {
 
 // ---- 経験値 ----
 
-export function totalXp(s) {
-  let sum = 0;
-  for (const l of Object.values(s.logs)) {
-    for (const v of Object.values(l.done)) sum += v;
-    for (const v of Object.values(l.rec)) sum += v;
-    sum += l.bonus ?? 0;
-  }
+/** 1日分の獲得ポイント(クエスト・緊急・リカバリー・週のボーナスすべて) */
+function dayXp(l) {
+  if (!l) return 0;
+  let sum = l.bonus ?? 0;
+  for (const v of Object.values(l.done)) sum += v;
+  for (const v of Object.values(l.rec)) sum += v;
   return sum;
+}
+
+/** 累計経験値 = 30日より前に整理した分 + 残っている日ごとの記録 */
+export function totalXp(s) {
+  let sum = s.archivedXp ?? 0;
+  for (const l of Object.values(s.logs)) sum += dayXp(l);
+  return sum;
+}
+
+// ---- 日ごとの獲得ポイント(直近30日だけ残す) ----
+
+export const KEEP_DAYS = 30;
+
+/** 30日より前の日ごとの記録を消す。消す前にその経験値を archivedXp に移すので、累計とレベルは変わらない */
+function pruneOld(n, today) {
+  const cutoff = addDays(today, -(KEEP_DAYS - 1));
+  for (const key of Object.keys(n.logs)) {
+    if (key >= cutoff) continue;
+    n.archivedXp = (n.archivedXp ?? 0) + dayXp(n.logs[key]);
+    delete n.logs[key];
+  }
+  for (const map of [n.misses, n.offers]) {
+    for (const key of Object.keys(map)) if (key < cutoff) delete map[key];
+  }
+}
+
+/** 今日から30日前まで、新しい日から順に {day, xp, partial, drop}。drop は前の日より減った分(なければ null) */
+export function dailyPoints(s, today) {
+  const cutoff = addDays(today, -(KEEP_DAYS - 1));
+  const starts = [today, ...Object.keys(s.logs), ...s.quests.map((q) => q.created), ...(s.urgent ?? []).map((u) => u.day)];
+  const first = starts.reduce((a, b) => (b < a ? b : a));
+  const from = first > cutoff ? first : cutoff;
+  const out = [];
+  for (let d = today; d >= from; d = addDays(d, -1)) {
+    const xp = dayXp(s.logs[d]);
+    const prev = addDays(d, -1);
+    const comparable = d !== today && prev >= from;
+    const prevXp = dayXp(s.logs[prev]);
+    out.push({ day: d, xp, partial: d === today, drop: comparable && xp < prevXp ? prevXp - xp : null });
+  }
+  return out;
 }

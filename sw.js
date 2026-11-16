@@ -1,5 +1,5 @@
 // オフライン用。ファイルを変えたら VERSION を上げる。
-const VERSION = 'levelup-v5';
+const VERSION = 'levelup-v6';
 const FILES = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest', 'fonts/orbitron.woff2',
   'icons/icon-180.png', 'icons/icon-512.png',

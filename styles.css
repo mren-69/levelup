@@ -107,6 +107,20 @@ body.is-sorting { overflow-x: hidden; cursor: grabbing; }
 .q.emergency .mini, .emergency .mini { border-color: var(--red); color: #ff8a82; }
 .card.emergency b { color: #ff8a82; }
 @keyframes emglow { 50% { box-shadow: 0 0 26px rgba(255,90,79,.8), inset 0 0 18px rgba(255,90,79,.2); } }
+/* 日ごとの獲得ポイント */
+.hist { padding: 6px 12px; }
+.hist-row { display: grid; grid-template-columns: 7.2em 1fr 3.2em 3.4em; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid rgba(79,209,255,.12); }
+.hist-row:last-child { border-bottom: 0; }
+.hist-day { font-size: 13px; white-space: nowrap; }
+.hist-day small { font-size: 11px; color: var(--dim); }
+.hist-tag { margin-left: 4px; padding: 0 5px; font-size: 10px; color: var(--accent); border: 1px solid var(--accent); border-radius: 2px; vertical-align: 1px; }
+.hist-bar { height: 8px; background: #0a0f1c; border: 1px solid rgba(184,134,11,.35); border-radius: 1px; overflow: hidden; }
+.hist-bar i { display: block; height: 100%; background: linear-gradient(90deg, #b8860b, #f6c453); box-shadow: 0 0 8px rgba(246,196,83,.6); }
+.hist-xp { font-family: var(--head); font-weight: 700; color: var(--gold); text-align: right; font-size: 15px; }
+.hist-drop { font-size: 12px; font-weight: 700; color: #ff8a82; text-align: right; white-space: nowrap; }
+.hist-row.today .hist-xp { color: #fff3c4; }
+.hist-row.today .hist-bar i { background: linear-gradient(90deg, #1f6fd6, #4fd1ff); box-shadow: 0 0 8px rgba(79,209,255,.6); }
+
 /* 昨日の振り返り: 過去の分なので、少し落ち着いた青紫 */
 .rv-h { border-left-color: var(--violet); }
 .q.review { border-color: rgba(155,123,255,.6); }
