@@ -229,6 +229,25 @@ export function addUrgent(s, fields, today) {
   return n;
 }
 
+/** 今日のまだ終わっていない緊急クエストを、明日に持ち越す(明日の朝3時にまた出る。何回でも可) */
+export function postponeUrgent(s, id, today) {
+  const u = (s.urgent ?? []).find((x) => x.id === id);
+  if (!u || u.day !== today) throw new Error('今日の緊急クエストだけ持ち越せます');
+  if (s.logs[today]?.done?.[id] !== undefined) throw new Error('終わった緊急クエストは持ち越せません');
+  const n = clone(s);
+  n.urgent.find((x) => x.id === id).day = addDays(today, 1);
+  return n;
+}
+
+/** 明日の予約を、今日の緊急クエストに戻す(持ち越しの押し間違い用) */
+export function bringBackUrgent(s, id, today) {
+  const u = (s.urgent ?? []).find((x) => x.id === id);
+  if (!u || u.day !== addDays(today, 1)) throw new Error('明日の予約だけ今日に戻せます');
+  const n = clone(s);
+  n.urgent.find((x) => x.id === id).day = today;
+  return n;
+}
+
 /** 明日に予約してある緊急クエスト(まだ発動していない) */
 export function scheduledUrgent(s, today) {
   const tomorrow = addDays(today, 1);

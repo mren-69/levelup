@@ -169,3 +169,61 @@ test('以前の保存データ(urgentなし)でも予約の一覧が空で動く
   delete old.urgent;
   assert.deepEqual(scheduledUrgent(old, D1), []);
 });
+
+// ---- 明日へ持ち越す / 今日に戻す ----
+import { postponeUrgent, bringBackUrgent } from '../js/logic/engine.js';
+
+test('持ち越し: 今日の一覧から消えて、明日の予約に移る(名前と経験値はそのまま)', () => {
+  let s = addUrgent(newState(D1), { name: 'お風呂掃除', xp: 20 }, D1);
+  s = postponeUrgent(s, s.urgent[0].id, D1);
+  assert.equal(todayUrgent(s, D1).length, 0);
+  const sch = scheduledUrgent(s, D1);
+  assert.equal(sch.length, 1);
+  assert.equal(sch[0].name, 'お風呂掃除');
+  assert.equal(sch[0].xp, 20);
+});
+
+test('持ち越し: 朝3時の締めで消えず、明日また緊急クエストとして出る', () => {
+  let s = addUrgent(newState(D1), { name: 'お風呂掃除', xp: 20 }, D1);
+  s = postponeUrgent(s, s.urgent[0].id, D1);
+  s = settle(s, day(1), r0);
+  assert.equal(todayUrgent(s, day(1)).length, 1);
+});
+
+test('持ち越しは何回でもできる', () => {
+  let s = addUrgent(newState(D1), { name: 'お風呂掃除', xp: 20 }, D1);
+  for (let i = 0; i < 5; i++) {
+    s = postponeUrgent(s, s.urgent[0].id, day(i));
+    s = settle(s, day(i + 1), r0);
+  }
+  assert.equal(todayUrgent(s, day(5)).length, 1);
+  s = toggleUrgent(s, s.urgent[0].id, day(5));
+  assert.equal(totalXp(s), 20);
+});
+
+test('終わった緊急クエストは持ち越せない', () => {
+  let s = addUrgent(newState(D1), { name: 'A', xp: 10 }, D1);
+  s = toggleUrgent(s, s.urgent[0].id, D1);
+  assert.throws(() => postponeUrgent(s, s.urgent[0].id, D1));
+});
+
+test('予約(明日の分)や存在しないものは、持ち越しの対象ではない', () => {
+  const s = addUrgent(newState(D1), { name: 'A', xp: 10, when: 'tomorrow' }, D1);
+  assert.throws(() => postponeUrgent(s, s.urgent[0].id, D1));
+  assert.throws(() => postponeUrgent(s, 'nope', D1));
+});
+
+test('今日に戻す: 明日の予約から今日の緊急クエストに戻る', () => {
+  let s = addUrgent(newState(D1), { name: 'A', xp: 10 }, D1);
+  s = postponeUrgent(s, s.urgent[0].id, D1);
+  s = bringBackUrgent(s, s.urgent[0].id, D1);
+  assert.equal(todayUrgent(s, D1).length, 1);
+  assert.equal(scheduledUrgent(s, D1).length, 0);
+  s = toggleUrgent(s, s.urgent[0].id, D1);
+  assert.equal(totalXp(s), 10);
+});
+
+test('今日に戻す: 今日の分は対象ではない', () => {
+  const s = addUrgent(newState(D1), { name: 'A', xp: 10 }, D1);
+  assert.throws(() => bringBackUrgent(s, s.urgent[0].id, D1));
+});

@@ -1,6 +1,6 @@
 import {
   todayQuests, toggleDone, setPaused, isPausedNow, answerOffer, completeOffer,
-  missedYesterday, shieldAvailable, useShield, yesterdayReview, toggleYesterday, todayUrgent, scheduledUrgent, toggleUrgent, deleteUrgent, moveQuest, moveToday,
+  missedYesterday, shieldAvailable, useShield, yesterdayReview, toggleYesterday, todayUrgent, scheduledUrgent, toggleUrgent, postponeUrgent, bringBackUrgent, deleteUrgent, moveQuest, moveToday,
 } from '../logic/engine.js';
 import { MULTS } from '../logic/penalty.js';
 import { taskText } from '../logic/recovery.js';
@@ -50,7 +50,10 @@ function urgentHTML(t) {
     <button class="chk" data-act="urgentDone" data-q="${u.id}">${t.done ? '✓' : ''}</button>
     <div class="qt"><span class="tag">EMERGENCY</span><b>${esc(u.name)}</b><small>今日の朝3時まで・1回きり</small></div>
     <div class="xp">+${u.xp}</div>
-    <button class="mini" data-act="urgentDelete" data-q="${u.id}" aria-label="削除">削除</button></div>`;
+    <div class="em-btns">
+      ${t.done ? '' : `<button class="mini" data-act="urgentPostpone" data-q="${u.id}">明日へ</button>`}
+      <button class="mini" data-act="urgentDelete" data-q="${u.id}" aria-label="削除">削除</button>
+    </div></div>`;
 }
 
 export function view(ctx) {
@@ -66,7 +69,10 @@ export function view(ctx) {
     html += `<h2 class="em-h sch-h">明日の予約</h2><p class="note">明日の朝3時になると、緊急クエストとして出ます。</p>${scheduled.map((u) => `
       <div class="win q scheduled"><div class="qt"><span class="tag">予約</span><b>${esc(u.name)}</b><small>明日の朝3時から</small></div>
       <div class="xp">+${u.xp}</div>
-      <button class="mini" data-act="urgentDelete" data-q="${u.id}" aria-label="削除">削除</button></div>`).join('')}`;
+      <div class="em-btns">
+        <button class="mini" data-act="urgentBack" data-q="${u.id}">今日に戻す</button>
+        <button class="mini" data-act="urgentDelete" data-q="${u.id}" aria-label="削除">削除</button>
+      </div></div>`).join('')}`;
   }
 
   const offers = (s.offers[today] ?? []).filter((o) => o.status !== 'rejected');
@@ -150,6 +156,18 @@ export const actions = {
   new: (el, ctx) => openEditor(ctx, null),
   newUrgent: (el, ctx) => openUrgentEditor(ctx),
   urgentDone: (el, ctx) => ctx.commit(toggleUrgent(ctx.s, el.dataset.q, ctx.today)),
+  urgentPostpone: (el, ctx) => {
+    try {
+      ctx.commit(postponeUrgent(ctx.s, el.dataset.q, ctx.today));
+      ctx.toast('明日に持ち越しました');
+    } catch (e) { ctx.toast(e.message); }
+  },
+  urgentBack: (el, ctx) => {
+    try {
+      ctx.commit(bringBackUrgent(ctx.s, el.dataset.q, ctx.today));
+      ctx.toast('今日に戻しました');
+    } catch (e) { ctx.toast(e.message); }
+  },
   urgentDelete: (el, ctx) => {
     if (!confirm('この緊急クエストを削除しますか？')) return;
     ctx.commit(deleteUrgent(ctx.s, el.dataset.q));
